@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
+  <title>fun</title>
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: black;
+      font-family: "Inter", sans-serif;
+      overflow: hidden;
+    }
+
+    .overlay, .scare {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .overlay {
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: black;
+      padding: 0 24px;
+    }
+
+    .overlay-body {
+      max-width: 512px;
+      text-align: center;
+    }
+
+    .overlay-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: red;
+      margin-bottom: 16px;
+    }
+
+    .overlay-description {
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 16px;
+    }
+
+    .overlay-buttons-wrapper {
+      margin: 24px -8px -8px;
+    }
+
+    .overlay-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 0 24px;
+      font-size: 16px;
+      font-weight: 500;
+      margin: 4px;
+      border-radius: 4px;
+      background-color: black;
+      color: red;
+      border: 2px solid red;
+      cursor: pointer;
+    }
+
+    .password-wrapper {
+      position: relative;
+      margin-top: 40px;
+      height: 40px;
+    }
+
+    .password-button {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .password-wrapper:hover .password-button {
+      opacity: 1;
+    }
+
+    a.overlay-link {
+      display: inline-block;
+      margin-top: 16px;
+      color: rgb(132, 94, 194);
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    a.overlay-link::before {
+      content: "";
+      position: absolute;
+      height: calc(50% + 4px);
+      width: calc(100% + 8px);
+      bottom: -4px;
+      left: -4px;
+      background-color: rgba(132, 94, 194, 0.1);
+    }
+
+    video#video {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    video#video::-webkit-media-controls-enclosure {
+      display: none !important;
+    }
+
+    .overlay[hidden] {
+      display: none;
+    }
+
+    .fungirl {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1.5;
+      opacity: 0;
+      transition: opacity 2s ease-in;
+      pointer-events: none;
+    }
+
+    .fungirl.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay" class="overlay">
+    <div class="overlay-body">
+      <p class="overlay-title">Funny Time</p>
+
+      <p class="overlay-description">This site is accessible to authorized personnel only.</p>
+      <p class="overlay-description">If you are authorized, click 'Yes'. Otherwise, click 'No'.</p>
+
+      <div class="overlay-buttons-wrapper">
+        <div id="accept-button" class="overlay-button">Yes</div>
+        <div id="decline-button" class="overlay-button">No</div>
+      </div>
+
+      <div class="password-wrapper">
+        <div id="password-button" class="overlay-button password-button">Password</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="scare">
+    <video id="video" src="./video.mp4" loop></video>
+  </div>
+
+  <!-- 👻 Fungirl 이미지 추가 -->
+  <img id="fungirl" class="fungirl" src="./fungirl.png" alt="Fungirl">
+
+  <script>
+    const video = document.getElementById("video");
+    const overlay = document.getElementById("overlay");
+    const acceptButton = document.getElementById("accept-button");
+    const declineButton = document.getElementById("decline-button");
+    const passwordButton = document.getElementById("password-button");
+    const fungirl = document.getElementById("fungirl");
+
+    let hasClicked;
+
+    window.onbeforeunload = function () {
+      if (hasClicked) return true;
+    };
+
+    function enterFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) elem.requestFullscreen();
+      else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen();
+      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+    }
+
+    function buttonClick(event) {
+      event.preventDefault();
+      if (!hasClicked) hasClicked = true;
+      overlay.hidden = true;
+      video.play();
+      enterFullscreen();
+
+      // ⏱️ Fungirl 이미지 3초 뒤 나타나게
+      setTimeout(() => {
+        fungirl.classList.add("visible");
+      }, 3000);
+    }
+
+    function speakPassword() {
+      const msg = new SpeechSynthesisUtterance("The password is Eight, Three, Seven, Nine");
+      msg.volume = 1;
+      msg.rate = 1;
+      msg.pitch = 1;
+      speechSynthesis.speak(msg);
+    }
+
+    acceptButton.addEventListener("click", buttonClick);
+    declineButton.addEventListener("click", buttonClick);
+    passwordButton.addEventListener("click", speakPassword);
+    video.addEventListener("click", enterFullscreen);
+  </script>
+</body>
+</html>
